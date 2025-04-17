@@ -42,6 +42,22 @@
     <div id="deer5-circle" class="deer-circle"></div>
     <div id="deer6-circle" class="deer-circle"></div>
 
+    <div id="mood-trigger" class="mood-trigger">❓</div>
+    
+    <div id="mood-selector" class="hidden">
+      <h3>How are you feeling today?</h3>
+      <div class="mood-options">
+        <button class="mood-option" data-mood="happy">😊</button>
+        <button class="mood-option" data-mood="neutral">😐</button>
+        <button class="mood-option" data-mood="tired">😴</button>
+        <button class="mood-option" data-mood="stressed">😫</button>
+        <button class="mood-option" data-mood="excited">🤩</button>
+      </div>
+      <div id="selected-mood-container" class="hidden">
+        <p>Today's mood: <span id="selected-mood-display"></span></p>
+      </div>
+    </div>
+
     <div id="tasks-container" class="hidden">
       <ul id="task-list"></ul>
     </div>

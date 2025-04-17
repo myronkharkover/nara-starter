@@ -1,4 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const moodIndicator = document.createElement("div");
+  moodIndicator.id = "mood-indicator";
+  moodIndicator.className = "hidden";
+  moodIndicator.addEventListener("click", () => {
+    document.getElementById("mood-selector").classList.remove("hidden");
+    moodIndicator.classList.add("hidden");
+  });
+  document.body.appendChild(moodIndicator);
   const backgroundContainer = document.createElement("div");
   backgroundContainer.className = "background-container";
   document.body.appendChild(backgroundContainer);
@@ -10,6 +18,102 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetModal = document.getElementById("reset-modal");
   const resetYesButton = document.getElementById("reset-yes");
   const resetNoButton = document.getElementById("reset-no");
+
+  const moodTrigger = document.getElementById("mood-trigger");
+  const moodSelector = document.getElementById("mood-selector");
+  const selectedMoodContainer = document.getElementById("selected-mood-container");
+  const selectedMoodDisplay = document.getElementById("selected-mood-display");
+
+  function initializeMoodSelector() {
+    // Check if a mood has already been selected today
+    chrome.storage.local.get("moodState", (data) => {
+      if (data.moodState && isSameDay(new Date(), new Date(data.moodState.date))) {
+        // Mood already selected today, update the trigger with the selected mood
+        moodTrigger.textContent = getMoodEmoji(data.moodState.mood);
+        // Don't show the selected mood container by default
+        selectedMoodContainer.classList.add("hidden");
+      } else {
+        // No mood selected today, show the question mark
+        moodTrigger.textContent = "❓";
+        moodSelector.classList.add("hidden");
+      }
+    });
+  
+    // Add event listeners to mood options
+    const moodOptions = document.querySelectorAll(".mood-option");
+    moodOptions.forEach(option => {
+      option.addEventListener("click", () => {
+        const selectedMood = option.getAttribute("data-mood");
+        
+        // Remove selected class from all options
+        moodOptions.forEach(opt => opt.classList.remove("selected"));
+        
+        // Add selected class to clicked option
+        option.classList.add("selected");
+        
+        // Save the mood state
+        const moodState = {
+          mood: selectedMood,
+          date: new Date().toISOString()
+        };
+        
+        chrome.storage.local.set({ moodState }, () => {
+          console.log("Mood saved:", selectedMood);
+        });
+        
+        // Update the display
+        selectedMoodDisplay.textContent = getMoodEmoji(selectedMood);
+        moodTrigger.textContent = getMoodEmoji(selectedMood);
+        
+        // Hide selector after short delay
+        setTimeout(() => {
+          moodSelector.classList.add("hidden");
+          selectedMoodContainer.classList.add("hidden"); // Always hide the container
+        }, 1000);
+      });
+    });
+  }
+
+  // Update the floating mood indicator
+  function updateMoodIndicator(mood) {
+    moodTrigger.textContent = getMoodEmoji(mood);
+  }
+
+  // Add this modified click handler for the mood trigger
+  moodTrigger.addEventListener("click", () => {
+    if (moodSelector.classList.contains("hidden")) {
+      // Show the mood selector when clicking on the trigger
+      moodSelector.classList.remove("hidden");
+      
+      // Check if there's a currently selected mood
+      chrome.storage.local.get("moodState", (data) => {
+        if (data.moodState && isSameDay(new Date(), new Date(data.moodState.date))) {
+          // Show the currently selected mood in the selector
+          selectedMoodDisplay.textContent = getMoodEmoji(data.moodState.mood);
+          
+          // Highlight the selected mood option
+          const moodOptions = document.querySelectorAll(".mood-option");
+          moodOptions.forEach(option => {
+            if (option.getAttribute("data-mood") === data.moodState.mood) {
+              option.classList.add("selected");
+            } else {
+              option.classList.remove("selected");
+            }
+          });
+          
+          // Show the selected mood container only inside the selector
+          selectedMoodContainer.classList.remove("hidden");
+        } else {
+          // No mood selected yet today
+          selectedMoodContainer.classList.add("hidden");
+        }
+      });
+    } else {
+      // Hide the mood selector
+      moodSelector.classList.add("hidden");
+      selectedMoodContainer.classList.add("hidden");
+    }
+  });
 
   // for controlling when hovers are active
   let hoverListeners = [];
@@ -126,6 +230,30 @@ document.addEventListener("DOMContentLoaded", () => {
       category: "others", // Link to the "Others" category
     },
   ];
+
+  // Helper function to get emoji from mood name
+  function getMoodEmoji(mood) {
+    const moodEmojis = {
+      happy: "😊",
+      neutral: "😐",
+      tired: "😴",
+      stressed: "😫",
+      excited: "🤩"
+    };
+    return moodEmojis[mood] || "😊";
+  }
+
+  // Helper function to check if two dates are the same day
+  function isSameDay(date1, date2) {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  }
+
+  // Initialize the mood selector
+  initializeMoodSelector();
 
   function removeAllListeners() {
     hoverListeners.forEach((listener) => {
@@ -386,6 +514,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ).then(() => {
           tasksContainer.classList.add("hidden");
           categoriesContainer.classList.add("hidden");
+          moodSelector.classList.add("hidden");
           hideHoverCircles(); // Hide hover circles when the final image is shown
           document.getElementById("welcome-message").classList.add("hidden");
 
@@ -394,6 +523,10 @@ document.addEventListener("DOMContentLoaded", () => {
           thankYouMessage.className = "thank-you-message";
           thankYouMessage.textContent = "Thank you for taking good care of me";
           document.body.appendChild(thankYouMessage);
+
+          if (data.moodState && isSameDay(new Date(), new Date(data.moodState.date))) {
+            updateMoodIndicator(data.moodState.mood);
+          }
         });
       } else {
         renderTasks(tasks, backgroundIndex, selectedCategory);
@@ -401,6 +534,14 @@ document.addEventListener("DOMContentLoaded", () => {
           categoriesContainer.classList.add("hidden");
           hideHoverCircles(); // Hide hover circles when categories are hidden
           document.getElementById("welcome-message").classList.add("hidden");
+
+          // Check if mood is selected and show indicator
+          if (data.moodState && isSameDay(new Date(), new Date(data.moodState.date))) {
+            updateMoodIndicator(data.moodState.mood);
+            moodSelector.classList.add("hidden");
+          } else {
+            moodSelector.classList.remove("hidden");
+          }
         }
         changeBackgroundWithSlide(
           backgroundSets[selectedCategory][backgroundIndex]
@@ -410,6 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
       //categoriesContainer.classList.remove("hidden");
       document.getElementById("welcome-message").classList.remove("hidden");
       showHoverCircles(); // Show hover circles in the initial state
+      moodSelector.classList.add("hidden"); // Hide mood selector until category is selected
       changeBackgroundWithSlide(initialBackground);
     }
   });
