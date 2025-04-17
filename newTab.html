@@ -83,5 +83,22 @@
 
     <script src="scripts/Sortable.min.js"></script>
     <script src="newTab.js"></script>
+
+    <div id="quote-overlay" class="quote-overlay">
+      <div class="quote-buttons">
+        <button id="new-quote-button" class="new-quote-button" title="Get a new quote">
+          <span>↻</span>
+        </button>
+        <button id="close-quote-button" class="close-quote-button" title="Close quote">×</button>
+      </div>
+      <button id="show-quote-button" class="show-quote-button hidden" title="Show quote">
+        <span>💭</span>
+      </button>
+      <div class="quote-container">
+        <p id="quote-text" class="quote-text"></p>
+        <p id="quote-author" class="quote-author"></p>
+      </div>
+    </div>
+
   </body>
 </html>

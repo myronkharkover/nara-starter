@@ -601,3 +601,99 @@ input[type="checkbox"]:checked+.task-text {
   .mood-trigger:hover {
     transform: scale(1.1);
   }
+
+  /* Quote Overlay Styles */
+.quote-overlay {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 100;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  display: flex;
+}
+
+.quote-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.quote-container {
+  margin-top: 4px;
+  flex: 1;
+}
+
+.quote-text {
+  font-size: 16px;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.quote-author {
+  font-size: 13px;
+  color: #7f8c8d;
+  margin: 0;
+  text-align: right;
+}
+
+.new-quote-button, .close-quote-button {
+  background: none;
+  border: none;
+  color: #6B7280;
+  cursor: pointer;
+  font-size: 16px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.new-quote-button:hover, .close-quote-button:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: #4158D0;
+}
+
+.new-quote-button:hover {
+  transform: rotate(90deg);
+}
+
+.show-quote-button {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.show-quote-button:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.9);
+}

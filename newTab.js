@@ -24,6 +24,60 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedMoodContainer = document.getElementById("selected-mood-container");
   const selectedMoodDisplay = document.getElementById("selected-mood-display");
 
+  const quoteOverlay = document.getElementById('quote-overlay');
+  const quoteText = document.getElementById('quote-text');
+  const quoteAuthor = document.getElementById('quote-author');
+  const newQuoteButton = document.getElementById('new-quote-button');
+  const closeQuoteButton = document.getElementById('close-quote-button');
+  const showQuoteButton = document.getElementById('show-quote-button');
+
+  // Always show a new quote when opening a new tab
+  displayRandomQuote();
+
+  // Close quote button handler
+  closeQuoteButton.addEventListener('click', () => {
+    quoteOverlay.classList.add('fade-out');
+    setTimeout(() => {
+      quoteOverlay.classList.add('hidden');
+      showQuoteButton.classList.remove('hidden');
+    }, 500);
+    
+    // Save the quote state
+    chrome.storage.local.set({ quoteHidden: true });
+  });
+
+  // Show quote button handler
+  showQuoteButton.addEventListener('click', () => {
+    showQuoteButton.classList.add('hidden');
+    quoteOverlay.classList.remove('hidden');
+    displayRandomQuote();
+    
+    // Save the quote state
+    chrome.storage.local.set({ quoteHidden: false });
+  });
+
+  function displayRandomQuote() {
+    // Fade out the current quote
+    quoteOverlay.classList.add('fade-out');
+    
+    setTimeout(() => {
+      // Get a random quote
+      const randomIndex = Math.floor(Math.random() * quotes.length);
+      const randomQuote = quotes[randomIndex];
+      
+      // Update the quote text and author
+      quoteText.textContent = randomQuote.text;
+      quoteAuthor.textContent = "-" + randomQuote.author;
+      
+      // Fade in the new quote
+      quoteOverlay.classList.remove('fade-out');
+      quoteOverlay.classList.add('fade-in');
+    }, 500);
+  }
+
+  // Event listener for new quote button
+  newQuoteButton.addEventListener('click', displayRandomQuote);
+
   function initializeMoodSelector() {
     // Check if a mood has already been selected today
     chrome.storage.local.get("moodState", (data) => {
@@ -39,16 +93,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   
-    // Add event listeners to mood options
+    
     const moodOptions = document.querySelectorAll(".mood-option");
     moodOptions.forEach(option => {
       option.addEventListener("click", () => {
         const selectedMood = option.getAttribute("data-mood");
         
-        // Remove selected class from all options
         moodOptions.forEach(opt => opt.classList.remove("selected"));
-        
-        // Add selected class to clicked option
         option.classList.add("selected");
         
         // Save the mood state
@@ -68,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Hide selector after short delay
         setTimeout(() => {
           moodSelector.classList.add("hidden");
-          selectedMoodContainer.classList.add("hidden"); // Always hide the container
+          selectedMoodContainer.classList.add("hidden");
         }, 1000);
       });
     });
@@ -79,10 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
     moodTrigger.textContent = getMoodEmoji(mood);
   }
 
-  // Add this modified click handler for the mood trigger
+  
   moodTrigger.addEventListener("click", () => {
     if (moodSelector.classList.contains("hidden")) {
-      // Show the mood selector when clicking on the trigger
       moodSelector.classList.remove("hidden");
       
       // Check if there's a currently selected mood
@@ -117,6 +167,89 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // for controlling when hovers are active
   let hoverListeners = [];
+
+  const quotes = [
+    {
+      text: "The only way to do great work is to love what you do.",
+      author: "Steve Jobs"
+    },
+    {
+      text: "Believe you can and you're halfway there.",
+      author: "Theodore Roosevelt"
+    },
+    {
+      text: "I have not failed. I've just found 10,000 ways that won't work.",
+      author: "Thomas Edison"
+    },
+    {
+      text: "It does not matter how slowly you go as long as you do not stop.",
+      author: "Confucius"
+    },
+    {
+      text: "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+      author: "Winston Churchill"
+    },
+    {
+      text: "You are never too old to set another goal or to dream a new dream.",
+      author: "C.S. Lewis"
+    },
+    {
+      text: "The future belongs to those who believe in the beauty of their dreams.",
+      author: "Eleanor Roosevelt"
+    },
+    {
+      text: "Strive not to be a success, but rather to be of value.",
+      author: "Albert Einstein"
+    },
+    {
+      text: "The only limit to our realization of tomorrow will be our doubts of today.",
+      author: "Franklin D. Roosevelt"
+    },
+    {
+      text: "Life is what happens when you're busy making other plans.",
+      author: "John Lennon"
+    },
+    {
+      text: "You miss 100% of the shots you don't take.",
+      author: "Wayne Gretzky"
+    },
+    {
+      text: "The mind is everything. What you think you become.",
+      author: "Buddha"
+    },
+    {
+      text: "The best time to plant a tree was 20 years ago. The second best time is now.",
+      author: "Chinese Proverb"
+    },
+    {
+      text: "Your time is limited, don't waste it living someone else's life.",
+      author: "Steve Jobs"
+    },
+    {
+      text: "Don't count the days, make the days count.",
+      author: "Muhammad Ali"
+    },
+    {
+      text: "The journey of a thousand miles begins with one step.",
+      author: "Lao Tzu"
+    },
+    {
+      text: "Keep your face always toward the sunshine, and shadows will fall behind you.",
+      author: "Walt Whitman"
+    },
+    {
+      text: "What you get by achieving your goals is not as important as what you become by achieving your goals.",
+      author: "Zig Ziglar"
+    },
+    {
+      text: "Be yourself; everyone else is already taken.",
+      author: "Oscar Wilde"
+    },
+    {
+      text: "Do what you can, with what you have, where you are.",
+      author: "Theodore Roosevelt"
+    }
+  ];
 
   // Initial background image with 5 deers
   const initialBackground = "assets/original.jpg";
